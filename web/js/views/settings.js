@@ -58,7 +58,8 @@ function paintSettings(root) {
       el('kbd', { text: 'Esc' }), 'Close this panel',
     ),
     el('p', { class: 'subtle', style: { marginTop: '26px', lineHeight: '1.5' } },
-      'Aloud for the web is open source. Voices by Kokoro-82M through onnxruntime; everything runs on this computer. ',
+      'Aloud for the web is free software under the GNU AGPL v3. Voices by Kokoro-82M through onnxruntime; everything runs on this computer. ',
+      el('a', { href: 'https://github.com/FLoWIsMe/aloud-reader', target: '_blank', rel: 'noopener', text: 'Source code' }), ' · ',
       el('a', { href: '/api/docs', target: '_blank', rel: 'noopener', text: 'API reference' }), '.'),
   );
 }

@@ -109,7 +109,11 @@ The iOS app is paid and uses accounts for sync; this one has no accounts, no pay
 ## Credits
 
 - [Kokoro-82M](https://huggingface.co/hexgrad/Kokoro-82M) by hexgrad (Apache-2.0) and the ONNX export and runtime from [kokoro-onnx](https://github.com/thewh1teagle/kokoro-onnx) (MIT).
-- Phonemization through [espeak-ng](https://github.com/espeak-ng/espeak-ng) (GPL-3.0), loaded at runtime as a separate library.
-- Article extraction by [trafilatura](https://github.com/adbar/trafilatura).
+- Phonemization through [phonemizer](https://github.com/bootphon/phonemizer) and [espeak-ng](https://github.com/espeak-ng/espeak-ng), both GPL-3.0.
+- Article extraction by [trafilatura](https://github.com/adbar/trafilatura) (Apache-2.0).
 
-Aloud for the web is released under the Apache License 2.0. See `LICENSE`.
+## License
+
+Copyright (C) 2026 Flow Technical Solutions LLC.
+
+Aloud for the web is free software, released under the [GNU Affero General Public License v3.0 or later](LICENSE). You can run it, change it and share it. If you distribute it, or run a modified version as a service that other people use, you have to offer them your full source code under the same license. That keeps every version of Aloud open; it is not a ban on commercial use, so a lawyer, not this README, is the place to confirm what your own use requires.
