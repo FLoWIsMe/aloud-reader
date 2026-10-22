@@ -1,5 +1,5 @@
 [project]
-name = "aloud-web"
+name = "aloud-reader"
 version = "0.1.0"
 description = "Aloud for the web: read anything out loud with natural voices that run on your own computer."
 readme = "README.md"

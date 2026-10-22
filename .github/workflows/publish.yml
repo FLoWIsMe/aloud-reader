@@ -2,12 +2,12 @@ name: Publish image
 
 # Builds the container for amd64 and arm64 and pushes it to GitHub Container Registry on
 # every push to main (as :latest and :main) and on version tags (as :1.2.3 and :1.2).
-# No setup needed: GITHUB_TOKEN can push to ghcr.io/<owner>/aloud-web.
+# No setup needed: GITHUB_TOKEN can push to ghcr.io/<owner>/aloud-reader.
 #
 # To publish to Docker Hub as well, add two repository secrets:
 #   DOCKERHUB_USERNAME  your Docker Hub username
 #   DOCKERHUB_TOKEN     an access token from https://hub.docker.com/settings/security
-# The image is then also pushed as docker.io/<DOCKERHUB_USERNAME>/aloud-web.
+# The image is then also pushed as docker.io/<DOCKERHUB_USERNAME>/aloud-reader.
 
 on:
   push:
@@ -31,9 +31,9 @@ jobs:
         id: names
         run: |
           owner="${GITHUB_REPOSITORY_OWNER,,}"
-          images="ghcr.io/${owner}/aloud-web"
+          images="ghcr.io/${owner}/aloud-reader"
           if [ -n "$DOCKERHUB_USERNAME" ]; then
-            images="${images}"$'\n'"docker.io/${DOCKERHUB_USERNAME}/aloud-web"
+            images="${images}"$'\n'"docker.io/${DOCKERHUB_USERNAME}/aloud-reader"
           fi
           {
             echo "images<<EOF"
@@ -72,7 +72,7 @@ jobs:
           labels: |
             org.opencontainers.image.title=Aloud
             org.opencontainers.image.description=Read anything out loud with natural voices that run on your own computer.
-            org.opencontainers.image.licenses=MIT
+            org.opencontainers.image.licenses=Apache-2.0
 
       - name: Build and push
         uses: docker/build-push-action@v6

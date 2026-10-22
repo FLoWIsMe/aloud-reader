@@ -25,10 +25,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: docker build -t aloud-web .
+      - run: docker build -t aloud-reader .
       - name: Smoke test the container with the test engine
         run: |
-          docker run -d --name aloud -p 8787:8787 -e ALOUD_TTS_ENGINE=stub aloud-web
+          docker run -d --name aloud -p 8787:8787 -e ALOUD_TTS_ENGINE=stub aloud-reader
           for i in $(seq 1 30); do
             if curl -fsS http://localhost:8787/api/health; then echo; exit 0; fi
             sleep 2

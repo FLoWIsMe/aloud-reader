@@ -12,7 +12,7 @@ logs:
 	docker compose logs -f aloud
 
 build:
-	docker build -t aloud-web .
+	docker build -t aloud-reader .
 
 # Run without Docker (needs Python 3.11+): python -m venv .venv && .venv/bin/pip install -r requirements.txt
 dev:

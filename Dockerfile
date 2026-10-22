@@ -1,6 +1,6 @@
 # Aloud for the web: one container, CPU only, no accounts, no cloud.
-# Build:  docker build -t aloud-web .
-# Run:    docker run -d --name aloud -p 8787:8787 -v "$PWD/data:/data" aloud-web
+# Build:  docker build -t aloud-reader .
+# Run:    docker run -d --name aloud -p 8787:8787 -v "$PWD/data:/data" aloud-reader
 FROM python:3.12-slim-bookworm
 
 ENV PYTHONDONTWRITEBYTECODE=1 \

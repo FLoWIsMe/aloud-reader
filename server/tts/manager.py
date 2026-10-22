@@ -132,7 +132,7 @@ def download_file(url: str, destination: Path, on_progress=None, chunk_size: int
     """Stream `url` to `destination`, resuming a partial download when the server allows."""
     partial = destination.with_suffix(destination.suffix + ".part")
     existing = partial.stat().st_size if partial.exists() else 0
-    headers = {"User-Agent": "aloud-web/0.1"}
+    headers = {"User-Agent": "aloud-reader/0.1"}
     if existing:
         headers["Range"] = f"bytes={existing}-"
     timeout = httpx.Timeout(30.0, read=120.0)

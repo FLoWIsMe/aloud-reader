@@ -11,24 +11,24 @@ Aloud is the open-source web companion to [Aloud: Read Anything](https://apps.ap
 You need Docker (Docker Desktop on Mac and Windows, Docker Engine on Linux). The prebuilt image works on Intel and Apple Silicon Macs, Windows, and Linux (amd64 and arm64).
 
 ```bash
-docker run -d --name aloud -p 8787:8787 -v aloud-data:/data ghcr.io/flowisme/aloud-web:latest
+docker run -d --name aloud -p 8787:8787 -v aloud-data:/data ghcr.io/flowisme/aloud-reader:latest
 ```
 
 Open http://localhost:8787. The first start downloads the voice model (about 340 MB) in the background; until it is ready, your browser's built-in voice reads instead, so you can start listening immediately. Natural voices take over at the next sentence once the model is loaded.
 
-Update later with `docker pull ghcr.io/flowisme/aloud-web:latest`, then remove and recreate the container; the `aloud-data` volume keeps your library. To use a folder you can see instead of a named volume, mount it with `-v "$PWD/aloud-data:/data"`.
+Update later with `docker pull ghcr.io/flowisme/aloud-reader:latest`, then remove and recreate the container; the `aloud-data` volume keeps your library. To use a folder you can see instead of a named volume, mount it with `-v "$PWD/aloud-data:/data"`.
 
 Build from source instead:
 
 ```bash
-git clone https://github.com/FLoWIsMe/aloud-web.git
-cd aloud-web
+git clone https://github.com/FLoWIsMe/aloud-reader.git
+cd aloud-reader
 docker compose up --build
 ```
 
 Everything that matters lives in the data volume or folder: your library (`aloud.sqlite3`), the voice model (`models/`) and the audio cache (`cache/`). Back it up by copying it.
 
-Images are built by GitHub Actions on every push to `main` and on `v*` tags, for `linux/amd64` and `linux/arm64`, and published to `ghcr.io/flowisme/aloud-web` (and to Docker Hub when the repository has `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` secrets).
+Images are built by GitHub Actions on every push to `main` and on `v*` tags, for `linux/amd64` and `linux/arm64`, and published to `ghcr.io/flowisme/aloud-reader` (and to Docker Hub when the repository has `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` secrets).
 
 ## What it does
 

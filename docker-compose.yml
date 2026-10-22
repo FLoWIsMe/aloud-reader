@@ -1,7 +1,7 @@
 services:
   aloud:
     build: .
-    image: aloud-web:local
+    image: aloud-reader:local
     container_name: aloud
     ports:
       - "8787:8787"
