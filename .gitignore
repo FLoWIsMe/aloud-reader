@@ -1,0 +1,15 @@
+# Runtime data: library, settings, voice model, audio cache
+data/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+
+# Editors and OS
+.DS_Store
+.idea/
+.vscode/

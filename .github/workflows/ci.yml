@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - run: pip install -r requirements.txt pytest ruff
+      - run: ruff check server tests
+      - run: ruff format --check server tests
+      - run: python -m pytest -q
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t aloud-web .
+      - name: Smoke test the container with the test engine
+        run: |
+          docker run -d --name aloud -p 8787:8787 -e ALOUD_TTS_ENGINE=stub aloud-web
+          for i in $(seq 1 30); do
+            if curl -fsS http://localhost:8787/api/health; then echo; exit 0; fi
+            sleep 2
+          done
+          docker logs aloud
+          exit 1

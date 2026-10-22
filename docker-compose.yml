@@ -1,0 +1,22 @@
+services:
+  aloud:
+    build: .
+    image: aloud-web:local
+    container_name: aloud
+    ports:
+      - "8787:8787"
+    volumes:
+      # Library, settings, downloaded voice model and audio cache. Back up this folder.
+      - ./data:/data
+    environment:
+      ALOUD_PORT: "8787"
+      # Match the files in ./data to your user on Linux (run `id -u` and `id -g`).
+      # PUID: "1000"
+      # PGID: "1000"
+      # Audio cache cap in megabytes (default 2048).
+      # ALOUD_CACHE_MAX_MB: "2048"
+      # CPU threads for synthesis, 0 lets onnxruntime decide.
+      # ALOUD_THREADS: "0"
+      # Set to "0" to download the voice model only when asked from Settings.
+      # ALOUD_AUTO_DOWNLOAD: "1"
+    restart: unless-stopped

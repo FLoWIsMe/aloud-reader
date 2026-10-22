@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Aloud</title>
+  <meta name="description" content="Read anything out loud with natural voices that run on your own computer.">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#0b0b0b" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#fbfbfa" media="(prefers-color-scheme: light)">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Aloud">
+  <link rel="icon" href="/static/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/static/icon-192.png">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#/" aria-label="Aloud library">Aloud</a>
+    <div class="topbar-right">
+      <button id="tts-pill" class="pill" type="button" hidden></button>
+      <button id="settings-button" class="icon-button" type="button" aria-label="Settings"></button>
+    </div>
+  </header>
+  <main id="view" class="view"></main>
+  <div id="player" class="player" hidden></div>
+  <div id="sheet-root"></div>
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+  <noscript><p class="noscript">Aloud needs JavaScript to run.</p></noscript>
+  <script type="module" src="/static/js/app.js"></script>
+</body>
+</html>
