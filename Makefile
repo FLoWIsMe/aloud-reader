@@ -14,7 +14,7 @@ logs:
 build:
 	docker build -t aloud-reader .
 
-# Run without Docker (needs Python 3.11+): python -m venv .venv && .venv/bin/pip install -r requirements.txt
+# Run without Docker (needs Python 3.12+): python -m venv .venv && .venv/bin/pip install -r requirements.txt
 dev:
 	ALOUD_DATA_DIR=./data python -m server
 

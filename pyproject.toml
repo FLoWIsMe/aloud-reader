@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Aloud for the web: read anything out loud with natural voices that run on your own computer."
 readme = "README.md"
 license = { text = "Apache-2.0" }
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.115",
     "uvicorn[standard]>=0.30",
@@ -28,7 +28,7 @@ dev = ["pytest>=8.0", "ruff>=0.5"]
 
 [tool.ruff]
 line-length = 100
-target-version = "py311"
+target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "W", "B", "UP"]
