@@ -130,3 +130,27 @@ def test_index_page_is_served(client: TestClient) -> None:
     assert response.status_code == 200
     assert "<title>Aloud" in response.text
     assert client.get("/doc/abc").status_code == 200
+
+
+def test_warm_endpoint_caches_ahead_of_the_position(client: TestClient) -> None:
+    import time
+
+    from server.tts.cache import AudioCache
+
+    text = " ".join(f"Sentence {i} is here." for i in range(12))
+    doc = client.post("/api/documents/text", json={"text": text}).json()
+    assert doc["chunk_count"] == 12
+    response = client.post(f"/api/documents/{doc['id']}/warm", json={"position": 3})
+    assert response.status_code == 202, response.text
+    body = response.json()
+    assert body["state"] == "ready"
+    assert body["window"] == 9
+    state = client.app.state.aloud
+    chunks = [s for block in doc["blocks"] for s in block["sentences"]]
+    wanted = [AudioCache.key("stub", "stub_low", chunk) for chunk in chunks[3:]]
+    deadline = time.time() + 10
+    while time.time() < deadline and not all(state.cache.get(key) for key in wanted):
+        time.sleep(0.02)
+    assert all(state.cache.get(key) for key in wanted)
+    assert client.post("/api/documents/nope/warm", json={"position": 0}).status_code == 404
+    assert client.post(f"/api/documents/{doc['id']}/warm", json={"position": -1}).status_code == 422

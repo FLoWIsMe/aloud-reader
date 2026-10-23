@@ -7,9 +7,10 @@ import { store } from './store.js';
 
 const SILENT_WAV = 'data:audio/wav;base64,UklGRsQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YaAAAAAA'
   + 'A'.repeat(212);
-const PREFETCH_AHEAD = 3;
+const PREFETCH_AHEAD = 6; // sentences the browser fetches ahead of the one playing
 const KEEP_BEHIND = 2;
-const KEEP_AHEAD = 10;
+const KEEP_AHEAD = 12;
+const WARM_EVERY = 20; // tell the server where we are every N sentences so it stays ahead
 const MIN_SPEED = 0.5;
 const MAX_SPEED = 5.0;
 
@@ -33,6 +34,8 @@ export class Player extends EventTarget {
     this.prefetched = new Map();
     this.wordsAt = [];
     this.speechFailures = 0;
+    this.warmTimer = null;
+    this.lastWarmedAt = -1;
 
     this.audio = new Audio();
     this.audio.preload = 'auto';
@@ -44,6 +47,10 @@ export class Player extends EventTarget {
         this.emitError('Audio playback failed, continuing with the browser voice');
         this.speakChunk(this.index, ++this.token);
       }
+    });
+    // Natural voices arriving mid-session: start warming the open document right away.
+    store.on('tts', () => {
+      if (store.naturalReady && this.doc) this.warm(this.index);
     });
   }
 
@@ -82,9 +89,11 @@ export class Player extends EventTarget {
     }
     this.index = Math.min(Math.max(0, startIndex), Math.max(0, doc.chunks.length - 1));
     this.pausedMidSentence = false;
+    this.lastWarmedAt = -1;
     this.setState('idle');
     this.emit('doc', { doc });
     this.emit('index', { index: this.index });
+    this.warm(this.index); // opening a document is the signal to get its audio ready
   }
 
   unload() {
@@ -119,6 +128,7 @@ export class Player extends EventTarget {
       this.index = 0;
       this.pausedMidSentence = false;
     }
+    this.warm(this.index);
     if (this.state === 'paused' && this.pausedMidSentence && this.activeSource === 'natural') {
       this.pausedMidSentence = false;
       const token = ++this.token;
@@ -171,6 +181,7 @@ export class Player extends EventTarget {
     if (!this.doc) return;
     const target = Math.min(Math.max(0, index), this.count - 1);
     this.pausedMidSentence = false;
+    if (Math.abs(target - this.index) > PREFETCH_AHEAD) this.warm(target);
     if (this.isActive) {
       this.playChunk(target);
       return;
@@ -208,7 +219,25 @@ export class Player extends EventTarget {
   voiceChanged() {
     this.clearPrefetch();
     this.pausedMidSentence = false;
+    this.lastWarmedAt = -1;
+    this.warm(this.index);
     if (this.isActive) this.playChunk(this.index);
+  }
+
+  // Ask the server to synthesize the sentences after `position` in the background. Calls
+  // are coalesced, and nothing happens for the browser voice or before the model is ready.
+  warm(position, { force = false } = {}) {
+    if (!this.doc || this.voiceKind() !== 'natural' || !store.naturalReady) return;
+    if (!force && this.lastWarmedAt >= 0 && Math.abs(position - this.lastWarmedAt) < WARM_EVERY) {
+      return;
+    }
+    clearTimeout(this.warmTimer);
+    const doc = this.doc;
+    this.warmTimer = setTimeout(() => {
+      if (this.doc !== doc) return;
+      this.lastWarmedAt = position;
+      api.warmDocument(doc.id, position, this.naturalVoiceId()).catch(() => {});
+    }, 150);
   }
 
   // Internals
@@ -311,6 +340,7 @@ export class Player extends EventTarget {
       this.finish();
       return;
     }
+    this.warm(this.index + 1);
     this.playChunk(this.index + 1);
   }
 

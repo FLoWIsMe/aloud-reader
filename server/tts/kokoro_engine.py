@@ -8,7 +8,7 @@ from pathlib import Path
 
 import numpy as np
 
-from .base import Voice
+from .base import Voice, trim_silence, with_pause
 
 log = logging.getLogger("aloud.tts")
 
@@ -45,6 +45,8 @@ GRADES = {
 }
 
 DEFAULT_VOICE = "af_heart"
+DEFAULT_PAUSE_MS = 120
+TRIM_TOP_DB = 40.0
 PREVIEW_TEXT = {
     "en-us": "Natural voices, right on your computer. This is how I sound.",
     "en-gb": "Natural voices, right on your computer. This is how I sound.",
@@ -90,10 +92,17 @@ class KokoroEngine:
     name = "kokoro"
     sample_rate = SAMPLE_RATE
 
-    def __init__(self, model_path: Path, voices_path: Path, threads: int = 0) -> None:
+    def __init__(
+        self,
+        model_path: Path,
+        voices_path: Path,
+        threads: int = 0,
+        pause_ms: int = DEFAULT_PAUSE_MS,
+    ) -> None:
         self.model_path = Path(model_path)
         self.voices_path = Path(voices_path)
         self.threads = threads
+        self.pause_ms = max(0, pause_ms)
         self._kokoro = None
         self._voice_ids: list[str] = []
         self._lock = threading.Lock()
@@ -101,6 +110,10 @@ class KokoroEngine:
     @property
     def loaded(self) -> bool:
         return self._kokoro is not None
+
+    @property
+    def cache_tag(self) -> str:
+        return f"{self.name}:trim{int(TRIM_TOP_DB)}:pause{self.pause_ms}"
 
     def load(self) -> None:
         with self._lock:
@@ -138,4 +151,8 @@ class KokoroEngine:
         samples, _rate = self._kokoro.create(
             text, voice=voice, speed=1.0, lang=voice_language(voice), trim=True
         )
-        return np.asarray(samples, dtype=np.float32)
+        # kokoro-onnx only drops what is 60 dB below peak, which leaves 100 to 200 ms of
+        # near-silence on every sentence. Cut tighter, then add one deliberate pause so the
+        # gap between sentences is a setting rather than an accident.
+        trimmed = trim_silence(samples, self.sample_rate, top_db=TRIM_TOP_DB)
+        return with_pause(trimmed, self.sample_rate, self.pause_ms)

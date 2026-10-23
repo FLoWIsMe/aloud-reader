@@ -45,6 +45,8 @@ export const api = {
     return request('POST', '/api/documents/upload', { body: form });
   },
   updateDocument: (id, patch) => request('PATCH', `/api/documents/${id}`, { json: patch }),
+  warmDocument: (id, position, voice) =>
+    request('POST', `/api/documents/${id}/warm`, { json: { position, voice } }),
   deleteDocument: (id) => request('DELETE', `/api/documents/${id}`),
   audioUrl: (id, index, voice) =>
     `/api/documents/${id}/audio/${index}?voice=${encodeURIComponent(voice || '')}`,

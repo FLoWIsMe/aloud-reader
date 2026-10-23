@@ -114,7 +114,10 @@ class ModelManager:
                     download_file(url, path, self._report_progress)
             self._set(state="loading", progress=1.0, current_file="")
             engine = KokoroEngine(
-                self.config.model_path, self.config.voices_path, threads=self.config.threads
+                self.config.model_path,
+                self.config.voices_path,
+                threads=self.config.threads,
+                pause_ms=self.config.sentence_pause_ms,
             )
             engine.load()
             self._engine = engine

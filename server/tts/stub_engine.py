@@ -12,6 +12,7 @@ class StubEngine:
 
     name = "stub"
     sample_rate = 16000
+    cache_tag = "stub"
 
     def __init__(self) -> None:
         self._voices = [

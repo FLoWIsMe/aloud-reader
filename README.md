@@ -52,6 +52,8 @@ Set these in `docker-compose.yml` or with `-e` on `docker run`.
 | `ALOUD_AUTO_DOWNLOAD` | `1` | Download the voice model on start. Set `0` to download only from Settings. |
 | `ALOUD_CACHE_MAX_MB` | `2048` | Cap for cached audio; least recently played sentences are evicted first. |
 | `ALOUD_THREADS` | `0` | CPU threads for synthesis; `0` lets onnxruntime pick. |
+| `ALOUD_SENTENCE_PAUSE_MS` | `120` | Silence after each sentence. Lower for a brisker read, higher for a more deliberate one; it scales with playback speed. |
+| `ALOUD_WARM_AHEAD` | `80` | How many sentences past the listener's position the server keeps synthesized in the background. |
 | `ALOUD_MAX_UPLOAD_MB` | `50` | Largest file accepted. |
 | `ALOUD_KOKORO_MODEL_URL` | GitHub release | Where to fetch `kokoro-v1.0.onnx`. |
 | `ALOUD_KOKORO_VOICES_URL` | GitHub release | Where to fetch `voices-v1.0.bin`. |
@@ -75,6 +77,8 @@ browser (vanilla JS, no build step)          FastAPI server (Python 3.12)
 
 Importing extracts text into blocks (headings and paragraphs) with pypdf, python-docx, ebooklib, markdown-it-py and trafilatura, then splits each block into sentences with a small abbreviation-aware splitter. Very long sentences are broken at clause boundaries so the first audio arrives quickly. Every sentence is a chunk with an index; the reader renders one `<span>` per chunk and the player asks the server for chunk audio in order, prefetching a few ahead. The server synthesizes on a single worker, deduplicates concurrent requests for the same sentence and caches the WAV under a hash of engine, voice and text.
 
+The gap between sentences is kept small two ways. Opening a document, pressing play, seeking, or changing voice tells the server where the listener is (`POST /api/documents/{id}/warm`), and the worker synthesizes the next `ALOUD_WARM_AHEAD` sentences whenever nothing more urgent is queued, so on a first listen the audio is usually already on disk when playback reaches it. A sentence someone is waiting on always jumps ahead of warming. And each sentence file is trimmed to the speech itself plus one deliberate pause (`ALOUD_SENTENCE_PAUSE_MS`), instead of the 100 to 200 ms of near-silence the model leaves on its own.
+
 On a laptop CPU Kokoro runs at several times real time, so after the first sentence the audio stays ahead of playback. In this repository's sandbox (two cores) it measured about 1.7x real time with the fp32 model.
 
 ## Develop
@@ -83,7 +87,7 @@ On a laptop CPU Kokoro runs at several times real time, so after the first sente
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt pytest ruff
 python -m server                       # http://localhost:8787, data in ./data
-python -m pytest -q                    # 38 tests, no model needed (stub engine)
+python -m pytest -q                    # 45 tests, no model needed (stub engine)
 ruff check server tests && ruff format --check server tests
 ```
 

@@ -17,7 +17,14 @@ from ..extract import (
     extract_pasted_text,
     title_from_filename,
 )
-from ..schemas import DocumentDetail, DocumentSummary, DocumentUpdate, TextImport, UrlImport
+from ..schemas import (
+    DocumentDetail,
+    DocumentSummary,
+    DocumentUpdate,
+    TextImport,
+    UrlImport,
+    WarmRequest,
+)
 from ..state import AppState, get_state
 from ..tts import EngineNotReady
 
@@ -141,6 +148,24 @@ def update_document(
 def delete_document(document_id: str, state: AppState = Depends(get_state)) -> None:
     if not state.db.delete_document(document_id):
         raise HTTPException(404, "Document not found")
+
+
+@router.post("/{document_id}/warm", status_code=202)
+def warm_document(
+    document_id: str, payload: WarmRequest, state: AppState = Depends(get_state)
+) -> dict[str, Any]:
+    """Synthesize the sentences after `position` in the background so playback never waits."""
+    blocks = state.db.get_blocks(document_id)
+    if blocks is None:
+        raise HTTPException(404, "Document not found")
+    chunks = [sentence for block in blocks for sentence in block["sentences"]]
+    if not state.manager.ready:
+        return {"state": state.manager.status.state, "window": 0}
+    try:
+        window = state.synth.warm(document_id, chunks, payload.voice, payload.position)
+    except EngineNotReady as error:
+        return {"state": str(error), "window": 0}
+    return {"state": "ready", "window": window}
 
 
 @router.get("/{document_id}/audio/{index}")

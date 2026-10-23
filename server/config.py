@@ -42,6 +42,8 @@ class Config:
     voices_url: str
     cache_max_bytes: int
     threads: int
+    sentence_pause_ms: int
+    warm_ahead: int
     max_upload_bytes: int
     url_fetch_timeout: float
     log_level: str
@@ -59,6 +61,8 @@ class Config:
             voices_url=os.environ.get("ALOUD_KOKORO_VOICES_URL", DEFAULT_VOICES_URL),
             cache_max_bytes=_env_int("ALOUD_CACHE_MAX_MB", 2048) * 1024 * 1024,
             threads=_env_int("ALOUD_THREADS", 0),
+            sentence_pause_ms=_env_int("ALOUD_SENTENCE_PAUSE_MS", 120),
+            warm_ahead=_env_int("ALOUD_WARM_AHEAD", 80),
             max_upload_bytes=_env_int("ALOUD_MAX_UPLOAD_MB", 50) * 1024 * 1024,
             url_fetch_timeout=float(_env_int("ALOUD_URL_TIMEOUT", 30)),
             log_level=os.environ.get("ALOUD_LOG_LEVEL", "info").lower(),

@@ -51,6 +51,11 @@ class DocumentUpdate(BaseModel):
     finished: bool | None = None
 
 
+class WarmRequest(BaseModel):
+    position: int = Field(default=0, ge=0)
+    voice: str | None = Field(default=None, max_length=64)
+
+
 class SettingsUpdate(BaseModel):
     voice: str | None = Field(default=None, max_length=64)
     browser_voice: str | None = Field(default=None, max_length=200)
